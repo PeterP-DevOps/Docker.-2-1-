@@ -63,3 +63,47 @@ networks:
       config:
         - subnet: 10.5.0.0/16
 ```
+### Задание 4
+Выполните действия:
+
+Создайте конфигурацию docker-compose для Pushgateway с именем контейнера <ваши фамилия и инициалы>-netology-pushgateway.
+Обеспечьте внешний доступ к порту 9091 c докер-сервера.
+### Решение 4
+```
+version: '3.9'
+
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: petrovpg-netology-prometheus
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - petrovpg-my-netology-hw
+    restart: unless-stopped
+
+  pushgateway:
+    image: prom/pushgateway:latest
+    container_name: petrovpg-netology-pushgateway
+    ports:
+      - "9091:9091"
+    networks:
+      - petrovpg-my-netology-hw
+    restart: unless-stopped
+
+volumes:
+  prometheus_data:
+
+networks:
+  petrovpg-my-netology-hw:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.5.0.0/16
+```
