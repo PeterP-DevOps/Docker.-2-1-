@@ -28,3 +28,38 @@ networks:
       config:
         - subnet: 10.5.0.0/16
 ```
+### Задание 3
+Выполните действия:
+
+Создайте конфигурацию docker-compose для Prometheus с именем контейнера <ваши фамилия и инициалы>-netology-prometheus.
+Добавьте необходимые тома с данными и конфигурацией (конфигурация лежит в репозитории в директории 6-04/prometheus ).
+Обеспечьте внешний доступ к порту 9090 c докер-сервера.
+### Решение 3
+```
+version: '3.9'
+
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: petrovpg-netology-prometheus
+    volumes:
+      - ./6-04/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - petrovpg-my-netology-hw
+
+volumes:
+  prometheus_data:
+
+networks:
+  petrovpg-my-netology-hw:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.5.0.0/16
+```
