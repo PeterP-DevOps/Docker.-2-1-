@@ -1,0 +1,9 @@
+version: '3.9'
+services:
+volumes:
+networks:
+  petrovpg-my-netology-hw:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.5.0.0/16
