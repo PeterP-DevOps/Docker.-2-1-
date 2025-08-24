@@ -224,3 +224,61 @@ networks:
   petrovpg-my-netology-hw:
     driver: bridge
 ```
+### Задание 6
+Выполните действия.
+
+Выполните запрос в Pushgateway для помещения метрики <ваши фамилия и инициалы> со значением 5 в Prometheus: echo "<ваши фамилия и инициалы> 5" | curl --data-binary @- http://localhost:9091/metrics/job/netology.
+Залогиньтесь в Grafana с помощью логина и пароля из предыдущего задания.
+Cоздайте Data Source Prometheus (Home -> Connections -> Data sources -> Add data source -> Prometheus -> указать "Prometheus server URL = http://prometheus:9090" -> Save & Test).
+Создайте график на основе добавленной в пункте 5 метрики (Build a dashboard -> Add visualization -> Prometheus -> Select metric -> Metric explorer -> <ваши фамилия и инициалы -> Apply.
+В качестве решения приложите:
+
+docker-compose.yml целиком;
+скриншот команды docker ps после запуске docker-compose.yml;
+скриншот графика, постоенного на основе вашей метрики.
+### Решение 7
+```
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: petrovpg-netology-prometheus
+    restart: unless-stopped
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - petrovpg-my-netology-hw
+    depends_on:
+      - pushgateway
+
+  pushgateway:
+    image: prom/pushgateway:latest
+    container_name: petrovpg-netology-pushgateway
+    restart: unless-stopped
+    ports:
+      - "9091:9091"
+    networks:
+      - petrovpg-my-netology-hw
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: petrovpg-netology-grafana
+    restart: unless-stopped
+    environment:
+      - GF_PATHS_CONFIG=/etc/grafana/config/custom.ini
+    volumes:
+      - ./grafana:/var/lib/grafana
+      - ./custom.ini:/etc/grafana/config/custom.ini
+    ports:
+      - "80:3000"
+    networks:
+      - petrovpg-my-netology-hw
+    depends_on:
+      - prometheus
+      - pushgateway
+
+networks:
+  petrovpg-my-netology-hw:
+    driver: bridge
+```
