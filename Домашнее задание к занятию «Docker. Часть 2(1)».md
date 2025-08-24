@@ -166,3 +166,61 @@ networks:
       config:
         - subnet: 10.5.0.0/16
 ```
+### Задание 6
+Выполните действия.
+
+1.Настройте поочередность запуска контейнеров.
+2.Настройте режимы перезапуска для контейнеров.
+3.Настройте использование контейнерами одной сети.
+4.Запустите сценарий в detached режиме.
+
+### Решение 6
+```
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: petrovpg-netology-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    restart: always
+    depends_on:
+      - pushgateway
+    networks:
+      - petrovpg-my-netology-hw
+
+  pushgateway:
+    image: prom/pushgateway:latest
+    container_name: petrovpg-netology-pushgateway
+    ports:
+      - "9091:9091"
+    restart: always
+    networks:
+      - petrovpg-my-netology-hw
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: petrovpg-netology-grafana
+    ports:
+      - "80:3000"
+    volumes:
+      - ./custom.ini:/etc/grafana/grafana.ini
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_PATHS_CONFIG=/etc/grafana/grafana.ini
+    restart: always
+    depends_on:
+      - prometheus
+    networks:
+      - petrovpg-my-netology-hw
+
+volumes:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  petrovpg-my-netology-hw:
+    driver: bridge
+```
