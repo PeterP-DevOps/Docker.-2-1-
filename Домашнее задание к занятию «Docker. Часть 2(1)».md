@@ -107,3 +107,62 @@ networks:
       config:
         - subnet: 10.5.0.0/16
 ```
+### Задание 5
+Выполните действия:
+
+Создайте конфигурацию docker-compose для Grafana с именем контейнера <ваши фамилия и инициалы>-netology-grafana.
+Добавьте необходимые тома с данными и конфигурацией (конфигурация лежит в репозитории в директории 6-04/grafana.
+Добавьте переменную окружения с путем до файла с кастомными настройками (должен быть в томе), в самом файле пропишите логин=<ваши фамилия и инициалы> пароль=netology.
+Обеспечьте внешний доступ к порту 3000 c порта 80 докер-сервера.
+### Решение 5
+```
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: petrovpg-netology-prometheus
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - petrovpg-my-netology-hw
+    restart: unless-stopped
+
+  pushgateway:
+    image: prom/pushgateway:latest
+    container_name: petrovpg-netology-pushgateway
+    ports:
+      - "9091:9091"
+    networks:
+      - petrovpg-my-netology-hw
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: petrovpg-netology-grafana
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/custom.ini:/etc/grafana/custom.ini:ro
+    environment:
+      - GF_PATHS_CONFIG=/etc/grafana/custom.ini
+    ports:
+      - "80:3000"
+    networks:
+      - petrovpg-my-netology-hw
+    restart: unless-stopped
+
+volumes:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  petrovpg-my-netology-hw:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.5.0.0/16
+```
