@@ -224,7 +224,7 @@ networks:
   petrovpg-my-netology-hw:
     driver: bridge
 ```
-### Задание 6
+### Задание 7
 Выполните действия.
 
 Выполните запрос в Pushgateway для помещения метрики <ваши фамилия и инициалы> со значением 5 в Prometheus: echo "<ваши фамилия и инициалы> 5" | curl --data-binary @- http://localhost:9091/metrics/job/netology.
@@ -242,43 +242,45 @@ services:
   prometheus:
     image: prom/prometheus:latest
     container_name: petrovpg-netology-prometheus
-    restart: unless-stopped
     volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
     ports:
       - "9090:9090"
     networks:
       - petrovpg-my-netology-hw
-    depends_on:
-      - pushgateway
+    restart: unless-stopped
 
   pushgateway:
     image: prom/pushgateway:latest
     container_name: petrovpg-netology-pushgateway
-    restart: unless-stopped
     ports:
       - "9091:9091"
     networks:
       - petrovpg-my-netology-hw
+    restart: unless-stopped
 
   grafana:
     image: grafana/grafana:latest
     container_name: petrovpg-netology-grafana
-    restart: unless-stopped
-    environment:
-      - GF_PATHS_CONFIG=/etc/grafana/config/custom.ini
     volumes:
-      - ./grafana:/var/lib/grafana
-      - ./custom.ini:/etc/grafana/config/custom.ini
+      - grafana_data:/var/lib/grafana
+      - ./grafana/custom.ini:/etc/grafana/grafana.ini:ro
     ports:
       - "80:3000"
     networks:
       - petrovpg-my-netology-hw
-    depends_on:
-      - prometheus
-      - pushgateway
+    restart: unless-stopped
+
+volumes:
+  prometheus_data:
+  grafana_data:
 
 networks:
   petrovpg-my-netology-hw:
     driver: bridge
+
 ```
